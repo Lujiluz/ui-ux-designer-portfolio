@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { Mail, Whatsapp } from "./ui/icons";
 
 const navItems = [
   { label: "Introduction", href: "#introduction" },
-  { label: "Projects & Exp", href: "#projectsexperiences" },
+  { label: "Projects & Experiences", href: "#projectsexperiences" },
   { label: "Skills", href: "#skills" },
-  { label: "Let's talk", href: "#letstalk" },
+  { label: "Let's work", href: "#letstalk" },
 ];
 
 const Header = () => {
@@ -35,13 +37,23 @@ const Header = () => {
       animate={{ opacity: hidden ? 0 : 1, y: hidden ? -80 : 0 }}
       style={{ pointerEvents: hidden ? "none" : "auto" }}
       transition={{ duration: 0.45, ease: [0.4, 0, 0.15, 1] }}
-      className="fixed top-0 left-0 right-0 z-50 w-full"
+      className="fixed bg-primary-foreground top-0 left-0 right-0 z-50 w-full border-b border-t-text-secondary/20 shadow-xl shadow-[#00000040]"
     >
+      {/* welcome message along with contacts */}
+      <div className="flex justify-between px-12 py-2.5 text-sm border-b border-b-text-secondary/20">
+        <p>👋Hi, welcome to Rima’s Portofolio</p>
+        <div className="flex justify-between gap-2 ">
+          <Mail className="text-white w-5 h-5" />
+          rimazakiyatin@gmail.com
+          <Whatsapp className="text-white w-5 h-5" />
+          rimazakiyatin@gmail.com
+        </div>
+      </div>
       {/* ── Desktop / Mobile bar ── */}
       <div className="flex items-center justify-between px-8 md:px-14 py-6">
         {/* Logo */}
-        <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
-          <span className="font-heading font-bold text-primary-foreground text-sm leading-none">R</span>
+        <div className="w-9 h-9 flex items-center justify-center shrink-0">
+          <Image src="/images/navbar_icon.svg" width={52} height={52} alt="Logo Image" />
         </div>
 
         {/* Desktop nav */}
@@ -60,10 +72,10 @@ const Header = () => {
             Line 1 center: y=1   → moves to y=7  (+6)
             Line 3 center: y=13  → moves to y=7  (-6)
           */}
-          <div className="relative w-[22px] h-[14px]">
+          <div className="relative w-5.5 h-3.5">
             {/* Line 1 — full width */}
             <motion.span
-              className="absolute right-0 h-[2px] rounded-full bg-foreground"
+              className="absolute right-0 h-0.5 rounded-full bg-foreground"
               initial={false}
               animate={isOpen ? { rotate: 45, y: 6, width: 22 } : { rotate: 0, y: 0, width: 22 }}
               style={{ top: 0, width: 22 }}
