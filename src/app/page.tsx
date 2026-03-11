@@ -12,7 +12,7 @@ export default function Home() {
     <SmoothScroll>
       <Header />
       <HeroSection />
-      <div className="relative z-10 bg-crust">
+      <div className="relative z-10">
         <MarqueeBanner />
         <ExperienceTimeline />
         <ProjectsGrid />
