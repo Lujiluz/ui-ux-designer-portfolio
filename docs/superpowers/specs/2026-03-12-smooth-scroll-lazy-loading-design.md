@@ -17,134 +17,226 @@ Three improvements to the portfolio site targeting UX polish and mobile performa
 
 ## 1. Lenis Context
 
-### Goal
-Expose the Lenis scroll instance to any component that needs to programmatically scroll, without prop-drilling or module-level globals.
+### Architecture
+`SmoothScroll.tsx` is promoted to the Lenis context provider — it both initializes Lenis and exposes the instance via context. `src/context/LenisContext.tsx` contains only the context object and the `useLenis()` hook (no provider logic). `SmoothScroll` imports from it and calls `LenisContext.Provider` internally.
 
-### Design
-- Create `src/context/LenisContext.tsx` exporting:
-  - `LenisProvider` — initializes Lenis, runs the RAF loop, provides instance via `React.createContext<Lenis | null>`
-  - `useLenis()` — hook that reads from context; throws if used outside provider
-- `SmoothScroll.tsx` is updated to use `LenisProvider` internally (the component stays as the public API in `page.tsx`, it just delegates to the provider)
-- Lenis config: `smoothTouch: false` (default) — touch devices use native momentum scroll, no JS overhead on mobile
+This keeps the public API in `page.tsx` unchanged (`<SmoothScroll>` stays).
 
-### Interface
-```ts
-const lenis = useLenis(); // returns Lenis instance
-lenis.scrollTo('#skills');
-lenis.scrollTo(0); // back to top
+**Component tree (page.tsx is unchanged):**
 ```
+<SmoothScroll>
+  <LenisContext.Provider value={lenis}>   ← rendered inside SmoothScroll
+    <Header />          ← consumer via useLenis()
+    <HeroSection />
+    ...
+    <BackToTop />       ← consumer via useLenis(), dynamically imported
+  </LenisContext.Provider>
+</SmoothScroll>
+```
+
+### `LenisContext.tsx` (new file)
+Must be marked `"use client"` — it uses `createContext` and `useContext`, both client-only APIs.
+
+```ts
+"use client";
+export const LenisContext = createContext<Lenis | null>(null);
+export function useLenis(): Lenis | null {
+  return useContext(LenisContext);
+}
+// Returns Lenis | null. Does NOT throw if used outside provider.
+// Callers MUST null-check before calling .scrollTo().
+```
+
+### `SmoothScroll.tsx` (updated)
+Moves Lenis initialization here (already owns it). Adds `LenisContext.Provider` around children.
+
+**Also fix pre-existing RAF leak:** Store the `requestAnimationFrame` return value and call `cancelAnimationFrame` in the cleanup function to prevent the RAF from ticking on a destroyed Lenis instance in React Strict Mode.
+
+```ts
+useEffect(() => {
+  const lenis = new Lenis({ ... });
+  setLenisInstance(lenis); // expose via state → context value
+  let rafId: number;
+  function raf(time: number) { lenis.raf(time); rafId = requestAnimationFrame(raf); }
+  rafId = requestAnimationFrame(raf);
+  return () => { lenis.destroy(); cancelAnimationFrame(rafId); };
+}, []);
+```
+
+### Lenis Config (unchanged from current)
+```ts
+{ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true, smoothTouch: false }
+```
+`smoothTouch: false` ensures mobile uses native scroll — no JS overhead on touch devices.
 
 ---
 
 ## 2. Header: Smooth Navigation + Temporary Re-appear
 
-### Goal
-Nav links scroll smoothly via Lenis and the header re-appears during programmatic scroll, then hides again once idle.
+### Scroll Helper
+A local `scrollToSection(href: string)` function handles nav clicks. BackToTop calls `lenis.scrollTo(0)` directly and does NOT use this helper.
 
-### Design
-- Nav `<a>` tags replaced with `<button>` elements calling `lenis.scrollTo(href)`
-- A `navigating` ref (`useRef<boolean>`) suppresses the hide logic during programmatic scroll
-  - Set to `true` on nav button click
-  - Cleared in the Lenis `scrollTo` `onComplete` callback
-- Header visibility: `hidden = scrollY > 60 && !navigating.current`
-- Using a `ref` (not `state`) avoids unnecessary re-renders on every scroll tick
+```ts
+const navigatingRef = useRef<boolean>(false);
+const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-### Section ID Fixes
-All four nav hrefs must match section element IDs:
+function scrollToSection(href: string) {
+  if (!lenis) return;
+  navigatingRef.current = true;
 
-| Nav href | Action |
-|---|---|
-| `#introduction` | Add `id="introduction"` to `<section>` in HeroSection |
-| `#projectsexperiences` | Add `id="projectsexperiences"` to `<section>` in ExperienceTimeline |
-| `#skills` | Already correct — no change |
-| `#letstalk` | Update ContactSection `id` from `"contact"` to `"letstalk"` |
+  // 2-second fallback in case lenis never fires onComplete
+  // (e.g. user interrupts scroll with a touch gesture)
+  fallbackTimerRef.current = setTimeout(() => {
+    navigatingRef.current = false;
+  }, 2000);
+
+  lenis.scrollTo(href, {
+    onComplete: () => {
+      navigatingRef.current = false;
+      if (fallbackTimerRef.current) {
+        clearTimeout(fallbackTimerRef.current);
+        fallbackTimerRef.current = null;
+      }
+    },
+  });
+}
+```
+
+> **Note on `onComplete`:** Lenis 1.x (`lenis@1.3.18`) supports `onComplete` in `scrollTo` options. The 2-second `fallbackTimerRef` also guards against any version edge cases — the feature works correctly regardless of whether `onComplete` fires.
+
+Header visibility (used inside the existing `onScroll` handler — not in JSX, no re-renders):
+```ts
+hidden = scrollY > 60 && !navigatingRef.current
+```
+
+### Section ID Fixes (verified against actual files)
+
+| Nav href | Target component | Current id | Required change |
+|---|---|---|---|
+| `#introduction` | `HeroSection` | `"introduction"` | Already correct — no change |
+| `#projectsexperiences` | `ExperienceTimeline` | `"projectexperiences"` | Change to `"projectsexperiences"` (add "s") |
+| `#skills` | `SkillsSection` | `"skills"` | Already correct — no change |
+| `#letstalk` | `ContactSection` | `"contact"` | Change to `"letstalk"` |
+
+**Audit:** `id="contact"` appears only on the `<section>` element in `ContactSection.tsx`. No other file references `#contact`. Safe to rename. `id="projectexperiences"` likewise appears only on the `<section>` in `ExperienceTimeline.tsx`.
+
+**DOM order:** `ExperienceTimeline` renders before `ProjectsGrid` in `page.tsx`. Placing `#projectsexperiences` on `ExperienceTimeline` is intentional — it marks the start of the combined "Projects & Experiences" block.
 
 ---
 
 ## 3. Back to Top Button
 
-### Goal
-A fixed, accessible button that smoothly scrolls to the top of the page, matching the neo-brutalist CTA style.
+### Component
+New file: `src/components/BackToTop.tsx` — marked `"use client"`.
 
-### Design
-- New component: `src/components/BackToTop.tsx`
-- Registered in `page.tsx` as a dynamic import (code-split)
 - Fixed position: `bottom-6 right-6`, `z-50`
-- Visible after `scrollY > 400` — uses a single passive `scroll` listener on `window`
-- Enter/exit: `AnimatePresence` — fade + `translateY(16px → 0)` on enter, reverse on exit
-
-### Styling (matches ContactSection CTA)
-```
-bg-primary text-black rounded-lg border border-black
-shadow-[6px_6px_0px_rgba(85,85,85,1)] cursor-pointer
-px-4 py-4
-```
-Icon: `ArrowUp` from `lucide-react`
+- Visible state: `scrollY > 400` — tracked with a single passive `scroll` listener in `useEffect`, cleaned up on unmount
+- Enter/exit: `AnimatePresence` → `opacity: 0→1` + `y: 16→0` on enter, reverse on exit
 
 ### Interaction
-- `whileHover={{ y: -2 }}`
-- `whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(85,85,85,1)" }}`
-- On click: `lenis.scrollTo(0)`
+```ts
+onClick={() => { if (!lenis) return; lenis.scrollTo(0); }}
+// Inherits global duration 1.2s — feels natural for any scroll distance
+```
+
+```ts
+whileHover={{ y: -2 }}
+// Lift only. Shadow stays at 6px — matches ContactSection CTA pattern exactly.
+
+whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+// Button shifts toward shadow direction; shadow collapses to 0px.
+// Value rgba(0,0,0,1) matches ContactSection CTA whileTap exactly (line 85).
+```
+
+### Styling
+```
+bg-primary text-black rounded-lg border border-black
+shadow-[6px_6px_0px_rgba(85,85,85,1)] cursor-pointer p-4
+```
+Icon: `ArrowUp` from `lucide-react`, `w-5 h-5`
 
 ---
 
 ## 4. Lazy Loading
 
 ### Goal
-Split JS bundles so mobile devices download only what is needed for the initial viewport.
+Split JS bundles so mobile devices only download what is needed for the initial viewport.
 
-### Design
-- `page.tsx` uses `next/dynamic` for all below-fold components
-- Each dynamic import includes a `loading` prop returning a `<div>` with an approximate `minHeight` to prevent Cumulative Layout Shift (CLS)
-
-### Eager imports (visible on first paint)
+### Eager imports (no change — visible on first paint)
 - `Header`
 - `HeroSection`
-- `MarqueeBanner` (first instance)
+- `MarqueeBanner` — **1st instance only** (line 17 in page.tsx, directly after HeroSection)
 
-### Dynamic imports (code-split)
-| Component | Approx loading placeholder height |
-|---|---|
-| `ExperienceTimeline` | `300px` |
-| `ProjectsGrid` | `600px` |
-| `MarqueeBanner` (second) | `64px` |
-| `SkillsSection` | `400px` |
-| `ContactSection` | `500px` |
-| `Footer` | `100px` |
-| `BackToTop` | none (fixed position, no layout impact) |
+### Dynamic imports (`next/dynamic`)
+
+`page.tsx` currently has **3 MarqueeBanner instances** (lines 17, 20, 22). The 1st is eager. The 2nd (between ProjectsGrid and SkillsSection) and 3rd (between SkillsSection and ContactSection) are dynamically imported.
+
+`BackToTop` uses `ssr: false` — it reads `window.scrollY` on mount; server-rendering would cause a hydration mismatch. All other dynamic imports use `ssr: true` (default) so their HTML is server-rendered for SEO and first paint.
+
+Loading placeholder: a plain `<div style={{ minHeight: 'Xpx' }} />` — no spinner. Heights calibrated to mobile (taller than desktop) to prevent upward layout shift.
+
+| Component | Instance | Placeholder `minHeight` | `ssr` |
+|---|---|---|---|
+| `ExperienceTimeline` | — | `400px` | `true` |
+| `ProjectsGrid` | — | `800px` | `true` |
+| `MarqueeBanner` | 2nd (after ProjectsGrid) | `64px` | `true` |
+| `SkillsSection` | — | `500px` | `true` |
+| `MarqueeBanner` | 3rd (after SkillsSection) | `64px` | `true` |
+| `ContactSection` | — | `600px` | `true` |
+| `Footer` | — | `120px` | `true` |
+| `BackToTop` | — | none (fixed position) | `false` |
 
 ---
 
 ## 5. Viewport Animation Margins
 
-### Goal
-Animations trigger when a meaningful portion of the section is in view — responsive across screen sizes, engaging on mobile.
+### Why Percentage Margins
+Framer Motion passes `viewport.margin` directly to `IntersectionObserver.rootMargin`. When `root` is `null` (the default viewport root), percentage values are computed relative to viewport height — standard behavior per the IntersectionObserver spec. Safari percentage `rootMargin` support was fixed in Safari 15.4 (March 2022). This is an accepted risk for a portfolio targeting modern devices.
 
-### Design
-Replace all hardcoded `margin: "-100px"` values with percentage-based equivalents:
-
-| Element type | `viewport.margin` | Rationale |
+### Values
+| Element type | `viewport.margin` | Practical effect (667px phone) |
 |---|---|---|
-| Section containers | `"-15%"` | Triggers when 15% of section height is visible |
-| Individual items (pills, cards, text) | `"-10%"` | Slightly earlier to feel snappy once section appears |
+| Section containers | `"-15%"` | Triggers when ~100px of section is inside viewport |
+| Individual items (cards) | `"-10%"` | Triggers slightly earlier, feels snappy |
 
-Affected components: `ContactSection`, `SkillsSection`, `ExperienceTimeline`, `ProjectsGrid`
+All existing `once: true` flags are preserved.
 
-All existing `once: true` flags are preserved — animations fire once and stay.
+### Per-component changes
+
+**ContactSection** — container `motion.div` only:
+```ts
+viewport={{ once: true, margin: "-15%" }}  // was "-100px"
+```
+
+**SkillsSection** — container `motion.div` only. Inner items animate via stagger variants (no separate `whileInView` on each item — the stagger hierarchy drives them):
+```ts
+viewport={{ once: true, margin: "-15%" }}  // was "-100px"
+```
+
+**ExperienceTimeline** — the outer `motion.div` at line 54:
+```ts
+viewport={{ once: true, margin: "-15%" }}  // add margin (was missing)
+```
+
+**ProjectsGrid** — add `margin` to whichever `motion` containers drive card entry animations:
+```ts
+viewport={{ once: true, margin: "-10%" }}  // add margin (was missing)
+```
 
 ---
 
 ## File Change Summary
 
-| File | Change type |
-|---|---|
-| `src/context/LenisContext.tsx` | New |
-| `src/components/SmoothScroll.tsx` | Update — delegate to LenisProvider |
-| `src/components/Header.tsx` | Update — useLenis, navigating ref, button nav |
-| `src/components/HeroSection.tsx` | Update — add section id |
-| `src/components/ExperienceTimeline.tsx` | Update — add section id, fix viewport margin |
-| `src/components/ContactSection.tsx` | Update — fix id, fix viewport margin |
-| `src/components/ProjectsGrid.tsx` | Update — fix viewport margin |
-| `src/components/SkillsSection.tsx` | Update — fix viewport margin |
-| `src/components/BackToTop.tsx` | New |
-| `src/app/page.tsx` | Update — lazy imports, add BackToTop |
+| File | Change type | Notes |
+|---|---|---|
+| `src/context/LenisContext.tsx` | New | `"use client"`, context + `useLenis()` |
+| `src/components/SmoothScroll.tsx` | Update | Become context provider + fix RAF leak |
+| `src/components/Header.tsx` | Update | `useLenis`, `scrollToSection`, `navigatingRef` + fallback timer |
+| `src/components/HeroSection.tsx` | No change | `id="introduction"` already correct |
+| `src/components/ExperienceTimeline.tsx` | Update | Fix `id` typo, add `margin` to viewport |
+| `src/components/ContactSection.tsx` | Update | `id="letstalk"`, `margin: "-15%"` |
+| `src/components/ProjectsGrid.tsx` | Update | Add `margin: "-10%"` to viewport |
+| `src/components/SkillsSection.tsx` | Update | `margin: "-15%"` on container |
+| `src/components/BackToTop.tsx` | New | `"use client"`, fixed CTA button |
+| `src/app/page.tsx` | Update | Lazy imports, `<BackToTop />`, remove `"use client"` if unused |
