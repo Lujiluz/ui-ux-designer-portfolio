@@ -6,6 +6,7 @@ import ExperienceTimeline from "@/components/ExperienceTimeline";
 import ProjectsGrid from "@/components/ProjectsGrid";
 import SkillsSection from "@/components/SkillsSection";
 import Footer from "@/components/Footer";
+import ContactSection from "@/components/ContactSection";
 
 export default function Home() {
   return (
@@ -18,6 +19,8 @@ export default function Home() {
         <ProjectsGrid />
         <MarqueeBanner />
         <SkillsSection />
+        <MarqueeBanner />
+        <ContactSection />
         <Footer />
       </div>
     </SmoothScroll>
