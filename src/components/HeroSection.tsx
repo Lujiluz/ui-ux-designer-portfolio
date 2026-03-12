@@ -92,8 +92,8 @@ const HeroSection = () => {
 
               {/* Muncul terakhir sebagai penutup (0.7s) setelah visual beres */}
               <motion.p custom={0.7} variants={snappyText} initial="hidden" animate="visible" className="text-muted-foreground font-body text-base md:text-lg max-w-lg leading-relaxed">
-                I am a UI/UX Designer with over <strong className="text-foreground">4 years of experience</strong> in crafting intuitive interfaces and delivering satisfying user experiences. With a strong background in interactive design and
-                a user-centered approach, I have contributed to various projects, helping them <strong className="text-foreground">achieve business goals through effective design solutions.</strong>
+                I am a UI/UX Designer with over <strong className="text-foreground">4 years of experience</strong> in crafting intuitive interfaces and delivering satisfying user experiences. With a strong background in interactive design
+                and a user-centered approach, I have contributed to various projects, helping them <strong className="text-foreground">achieve business goals through effective design solutions.</strong>
               </motion.p>
             </div>
 
