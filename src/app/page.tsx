@@ -1,12 +1,38 @@
+import dynamic from "next/dynamic";
 import SmoothScroll from "@/components/SmoothScroll";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import MarqueeBanner from "@/components/MarqueeBanner";
-import ExperienceTimeline from "@/components/ExperienceTimeline";
-import ProjectsGrid from "@/components/ProjectsGrid";
-import SkillsSection from "@/components/SkillsSection";
-import Footer from "@/components/Footer";
-import ContactSection from "@/components/ContactSection";
+
+// Below-fold: code-split
+const ExperienceTimeline = dynamic(() => import("@/components/ExperienceTimeline"), {
+  ssr: true,
+  loading: () => <div style={{ minHeight: "400px" }} />,
+});
+const ProjectsGrid = dynamic(() => import("@/components/ProjectsGrid"), {
+  ssr: true,
+  loading: () => <div style={{ minHeight: "800px" }} />,
+});
+const MarqueeBannerDynamic = dynamic(() => import("@/components/MarqueeBanner"), {
+  ssr: true,
+  loading: () => <div style={{ minHeight: "64px" }} />,
+});
+const SkillsSection = dynamic(() => import("@/components/SkillsSection"), {
+  ssr: true,
+  loading: () => <div style={{ minHeight: "500px" }} />,
+});
+const ContactSection = dynamic(() => import("@/components/ContactSection"), {
+  ssr: true,
+  loading: () => <div style={{ minHeight: "600px" }} />,
+});
+const Footer = dynamic(() => import("@/components/Footer"), {
+  ssr: true,
+  loading: () => <div style={{ minHeight: "120px" }} />,
+});
+const BackToTop = dynamic(() => import("@/components/BackToTop"), {
+  ssr: true,
+  loading: () => null,
+});
 
 export default function Home() {
   return (
@@ -17,12 +43,13 @@ export default function Home() {
         <MarqueeBanner />
         <ExperienceTimeline />
         <ProjectsGrid />
-        <MarqueeBanner />
+        <MarqueeBannerDynamic />
         <SkillsSection />
-        <MarqueeBanner />
+        <MarqueeBannerDynamic />
         <ContactSection />
         <Footer />
       </div>
+      <BackToTop />
     </SmoothScroll>
   );
 }
