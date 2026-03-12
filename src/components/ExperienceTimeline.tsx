@@ -55,7 +55,7 @@ const ExperienceTimeline = () => {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "-15%" }}
           // Menggunakan bg-white/5 dan backdrop-blur agar pas dengan tema dark neo-brutalism
           className="w-full bg-[#1a1c18] border border-white/5 rounded-[32px] md:rounded-xl p-8 md:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 lg:gap-4"
         >

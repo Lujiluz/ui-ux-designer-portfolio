@@ -253,7 +253,7 @@ function LogoBar({ logos }: { logos: { src: string; alt: string; year: string }[
       variants={logoContainerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: "-10%" }}
       // Container gelap dengan rounded besar sesuai desain
       className="w-full bg-[#1a1c18] border border-white/5 rounded-3xl p-8 md:p-10 mb-16 flex items-center justify-start md:justify-around gap-8 overflow-x-auto scrollbar-hide"
     >
