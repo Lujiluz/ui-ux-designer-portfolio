@@ -85,7 +85,9 @@ const ContactSection = () => {
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
             className="px-5 py-4 text-xs font-bold bg-primary text-black rounded-lg border border-black shadow-[6px_6px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
           >
-            <a className="px-6 py-3.5 md:px-8 md:py-4 text-xs md:text-sm font-bold">LET&apos;S WORK TOGETHER</a>
+            <a href="mailto:rimazakiyatin@gmail.com" className="px-6 py-3.5 md:px-8 md:py-4 text-xs md:text-sm font-bold">
+              LET&apos;S WORK TOGETHER
+            </a>
           </motion.button>
         </motion.div>
       </div>
