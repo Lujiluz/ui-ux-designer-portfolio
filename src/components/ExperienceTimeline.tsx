@@ -45,7 +45,7 @@ const itemVariants: Variants = {
 
 const ExperienceTimeline = () => {
   return (
-    <section id="projectexperiences" className="py-16 md:py-24 px-6 md:px-12 bg-[#121212]">
+    <section id="projectsexperiences" className="py-16 md:py-24 px-6 md:px-12 bg-[#121212]">
       <div className="container mx-auto">
         <p className="text-xs tracking-widest uppercase text-muted-foreground mb-2 font-body">Project & Experience</p>
         <h2 className="text-2xl md:text-3xl font-heading font-bold text-foreground mb-12">Experience since 2020 - Present</h2>

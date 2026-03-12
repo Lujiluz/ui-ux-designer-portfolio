@@ -26,7 +26,7 @@ const itemVariants: Variants = {
 
 const ContactSection = () => {
   return (
-    <section id="contact" className="relative py-20 md:py-32 px-6 md:px-12 bg-[#121212] overflow-hidden">
+    <section id="letstalk" className="relative py-20 md:py-32 px-6 md:px-12 bg-[#121212] overflow-hidden">
       {/* Background Graphic Element 
         Pastikan lu export abstract line hijaunya dari Figma jadi SVG,
         terus simpen di /public/images/abstract-lines.svg
