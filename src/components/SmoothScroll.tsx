@@ -14,7 +14,6 @@ const SmoothScroll = ({ children }: { children: React.ReactNode }) => {
       smoothWheel: true,
     });
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLenis(instance);
 
     let rafId: number;
