@@ -39,7 +39,7 @@ const ContactSection = () => {
       </div>
 
       <div className="container mx-auto relative z-10">
-        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="max-w-3xl flex flex-col items-start">
+        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-15%" }} className="max-w-3xl flex flex-col items-start">
           {/* Section Subtitle */}
           <motion.p variants={itemVariants} className="text-sm md:text-base text-muted-foreground mb-4 font-body tracking-wide">
             Let&apos;s work

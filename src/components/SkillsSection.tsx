@@ -79,7 +79,7 @@ const SkillsSection = () => {
         <p className="text-sm md:text-base text-foreground mb-12 font-body tracking-wide">Skills</p>
 
         {/* Categories Wrapper */}
-        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} className="space-y-12">
+        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-15%" }} className="space-y-12">
           {skillCategories.map((category, i) => (
             <motion.div key={i} variants={categoryVariants} className="space-y-6">
               {/* Category Title */}
