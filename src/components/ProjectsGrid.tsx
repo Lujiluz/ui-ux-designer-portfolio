@@ -164,14 +164,14 @@ function ProjectCard({ project, index, company }: { project: Project; index: num
           <motion.button
             whileHover={{ y: -2 }}
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-            className="px-5 py-1.5 text-xs font-bold bg-primary text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] tracking-wide transition-shadow"
+            className="px-5 py-1.5 text-xs font-bold bg-primary text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
           >
             DONE
           </motion.button>
           <motion.button
             whileHover={{ y: -2 }}
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-            className="px-5 py-1.5 text-xs font-bold bg-[#e8f3a3] text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] tracking-wide transition-shadow"
+            className="px-5 py-1.5 text-xs font-bold bg-[#e8f3a3] text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
           >
             {project.category}
           </motion.button>
