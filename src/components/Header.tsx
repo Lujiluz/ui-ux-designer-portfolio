@@ -7,10 +7,10 @@ import Image from "next/image";
 import { Mail, Whatsapp } from "./ui/icons";
 
 const navItems = [
-  { label: "Introduction", href: "#introduction" },
-  { label: "Projects & Experiences", href: "#projectsexperiences" },
-  { label: "Skills", href: "#skills" },
-  { label: "Let's work", href: "#letstalk" },
+  { label: "Introduction", href: "/" },
+  { label: "Projects & Experiences", href: "/" },
+  { label: "Skills", href: "/" },
+  { label: "Let's work", href: "/" },
 ];
 
 const Header = () => {
