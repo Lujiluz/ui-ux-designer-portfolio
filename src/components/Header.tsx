@@ -68,13 +68,22 @@ const Header = () => {
       className="fixed bg-primary-foreground top-0 left-0 right-0 z-50 w-full border-b border-t-text-secondary/20 shadow-xl shadow-[#00000040]"
     >
       {/* welcome message along with contacts */}
-      <div className="flex justify-between px-12 py-2.5 text-sm border-b border-b-text-secondary/20">
-        <p>👋Hi, welcome to Rima’s Portofolio</p>
-        <div className="flex justify-between gap-2 ">
-          <Mail className="text-white w-5 h-5" />
-          rimazakiyatin@gmail.com
-          <Whatsapp className="text-white w-5 h-5" />
-          rimazakiyatin@gmail.com
+      <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 md:gap-0 px-4 md:px-12 py-2.5 text-xs md:text-sm border-b border-b-text-secondary/20">
+        <p className="text-center">👋 Hi, welcome to Rima’s Portofolio</p>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+          {/* Email Wrapper */}
+          <div className="flex items-center gap-1.5">
+            <Mail className="text-white w-4 h-4 md:w-5 md:h-5" />
+            <span>rimazakiyatin@gmail.com</span>
+          </div>
+
+          {/* WhatsApp Wrapper */}
+          <div className="flex items-center gap-1.5">
+            <Whatsapp className="text-white w-4 h-4 md:w-5 md:h-5" />
+            {/* Btw, ini teksnya sama-sama email, kalau mau diganti nomor WA tinggal ubah bagian ini ya */}
+            <span>rimazakiyatin@gmail.com</span>
+          </div>
         </div>
       </div>
       {/* ── Desktop / Mobile bar ── */}
@@ -87,11 +96,7 @@ const Header = () => {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-0.5">
           {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => scrollToSection(item.href)}
-              className="text-sm text-foreground hover:text-foreground transition-colors duration-200 font-body px-4 py-2 rounded-xl hover:bg-white/[0.07]"
-            >
+            <button key={item.label} onClick={() => scrollToSection(item.href)} className="text-sm text-foreground hover:text-foreground transition-colors duration-200 font-body px-4 py-2 rounded-xl hover:bg-white/[0.07]">
               {item.label}
             </button>
           ))}
@@ -157,7 +162,10 @@ const Header = () => {
               {navItems.map((item, i) => (
                 <motion.button
                   key={item.label}
-                  onClick={() => { scrollToSection(item.href); setIsOpen(false); }}
+                  onClick={() => {
+                    scrollToSection(item.href);
+                    setIsOpen(false);
+                  }}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.07, duration: 0.22 }}
