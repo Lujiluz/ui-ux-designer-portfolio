@@ -21,14 +21,6 @@ const SkillsSection = dynamic(() => import("@/components/SkillsSection"), {
   ssr: true,
   loading: () => <div style={{ minHeight: "500px" }} />,
 });
-const ContactSection = dynamic(() => import("@/components/ContactSection"), {
-  ssr: true,
-  loading: () => <div style={{ minHeight: "600px" }} />,
-});
-const Footer = dynamic(() => import("@/components/Footer"), {
-  ssr: true,
-  loading: () => <div style={{ minHeight: "120px" }} />,
-});
 const BackToTop = dynamic(() => import("@/components/BackToTop"), {
   ssr: true,
   loading: () => null,
@@ -37,7 +29,6 @@ const BackToTop = dynamic(() => import("@/components/BackToTop"), {
 export default function Home() {
   return (
     <SmoothScroll>
-      <Header />
       <HeroSection />
       <div className="relative z-10">
         <MarqueeBanner />
@@ -45,9 +36,6 @@ export default function Home() {
         <ProjectsGrid />
         <MarqueeBannerDynamic />
         <SkillsSection />
-        <MarqueeBannerDynamic />
-        <ContactSection />
-        <Footer />
       </div>
       <BackToTop />
     </SmoothScroll>

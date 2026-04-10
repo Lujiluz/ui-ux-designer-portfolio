@@ -8,6 +8,7 @@ import { ArrowRight } from "lucide-react";
 // ─── Interfaces & Data ───────────────────────────────────────────────────────
 
 interface Project {
+  slug?: string
   title: string;
   category: string;
   date: string;
@@ -42,6 +43,7 @@ const projectSets: ProjectSet[] = [
     ],
     projects: [
       {
+        slug: "masata-project",
         title: "MASATA PROJECT",
         category: "MOBILE",
         date: "2021",
@@ -51,6 +53,7 @@ const projectSets: ProjectSet[] = [
         creator: "RIMA ZAKIYATIN",
       },
       {
+        slug: "jalan-kita-project",
         title: "JALAN KITA 2.0",
         category: "WEB & MOBILE",
         date: "2021",
@@ -60,6 +63,7 @@ const projectSets: ProjectSet[] = [
         creator: "RIMA ZAKIYATIN",
       },
       {
+        slug: "my-archery-project",
         title: "MY ARCHERY",
         category: "MOBILE",
         date: "2022",
@@ -70,7 +74,6 @@ const projectSets: ProjectSet[] = [
       },
     ],
   },
-  // Lu bisa tambahin ProjectSet kedua di sini kalau masih ada company lain
 ];
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
@@ -98,7 +101,7 @@ const logoItemVariants = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
 };
 
-// ─── ProjectCard & CTACard (SAMA SEPERTI SEBELUMNYA) ─────────────────────────
+// ─── ProjectCard & CTACard ─────────────────────────
 
 function ProjectCard({ project, index, company }: { project: Project; index: number; company: string }) {
   const cardRef = useRef<HTMLDivElement>(null);
