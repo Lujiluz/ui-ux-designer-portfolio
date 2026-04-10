@@ -144,16 +144,7 @@ export default async function ProjectDetailPage({ params }: { params: { slug: st
 
         {/* Mockups / Images Grid */}
         <div className="w-full rounded-[20px] md:rounded-[40px] overflow-hidden border border-white/10 bg-[#1a1c18] shadow-2xl">
-          <Image
-            src={project.image}
-            alt={`${project.title} Showcase`}
-            // Masukin width & height gede buat patokan proporsi aja
-            // Di Next.js, kombinasi ini + class w-full h-auto bikin gambar fully responsive
-            width={1920}
-            height={1080}
-            className="w-full h-auto object-cover"
-            priority // Tambahin priority kalo gambarnya jadi hero image / di atas fold
-          />
+          <Image src={project.image} alt={`${project.title} Showcase`} width={1920} height={1080} className="w-full h-auto object-cover" priority />
         </div>
       </div>
     </div>
