@@ -64,7 +64,7 @@ export default async function ProjectDetailPage({ params }: { params: { slug: st
   }
 
   return (
-    <div className="pt-38 pb-20 px-6 md:px-12 bg-[#121212] min-h-screen">
+    <div className="pt-48 md:pt-42 pb-20 px-6 md:px-12 bg-[#121212] min-h-screen">
       <div className="container mx-auto max-w-5xl">
         {/* Breadcrumb / Kategori */}
         <p className="text-sm text-muted-foreground mb-4">Projects & Experiences</p>
