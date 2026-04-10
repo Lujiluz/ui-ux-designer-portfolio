@@ -5,12 +5,13 @@ import { useLenis } from "@/context/LenisContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Mail, Whatsapp } from "./ui/icons";
+import { usePathname, useRouter } from "next/navigation";
 
 const navItems = [
   { label: "Introduction", href: "/" },
-  { label: "Projects & Experiences", href: "/" },
-  { label: "Skills", href: "/" },
-  { label: "Let's work", href: "/" },
+  { label: "Projects & Experiences", href: "/#projectsexperiences" },
+  { label: "Skills", href: "/#skills" },
+  { label: "Let's work", href: "/#letstalk" },
 ];
 
 const Header = () => {
@@ -19,10 +20,11 @@ const Header = () => {
   const lenis = useLenis();
   const navigatingRef = useRef<boolean>(false);
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   function scrollToSection(href: string) {
     if (!lenis) return;
-    // Set BEFORE lenis.scrollTo() — onScroll may fire on the very next tick
     navigatingRef.current = true;
     fallbackTimerRef.current = setTimeout(() => {
       navigatingRef.current = false;
@@ -36,6 +38,24 @@ const Header = () => {
         }
       },
     });
+  }
+
+  function handleNavigator(href: string) {
+    if (href.includes("#")) {
+      // Ambil murni id-nya aja (misal dari "/#skills" jadi "#skills")
+      const hash = href.substring(href.indexOf("#"));
+
+      if (pathname === "/") {
+        // Kalau lagi di homepage, langsung smooth scroll ke sectionnya
+        scrollToSection(hash);
+      } else {
+        // Kalau lagi di halaman detail project, push route ke homepage + hash
+        router.push(`/${hash}`);
+      }
+    } else {
+      // Pindah halaman biasa tanpa full page reload
+      router.push(href);
+    }
   }
 
   useEffect(() => {
@@ -96,7 +116,7 @@ const Header = () => {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-0.5">
           {navItems.map((item) => (
-            <button key={item.label} onClick={() => scrollToSection(item.href)} className="text-sm text-foreground hover:text-foreground transition-colors duration-200 font-body px-4 py-2 rounded-xl hover:bg-white/[0.07]">
+            <button key={item.label} onClick={() => handleNavigator(item.href)} className="text-sm text-foreground hover:text-foreground transition-colors duration-200 font-body px-4 py-2 rounded-xl hover:bg-white/[0.07]">
               {item.label}
             </button>
           ))}
@@ -163,7 +183,7 @@ const Header = () => {
                 <motion.button
                   key={item.label}
                   onClick={() => {
-                    scrollToSection(item.href);
+                    handleNavigator(item.href);
                     setIsOpen(false);
                   }}
                   initial={{ opacity: 0, x: -10 }}

@@ -21,10 +21,7 @@ const SkillsSection = dynamic(() => import("@/components/SkillsSection"), {
   ssr: true,
   loading: () => <div style={{ minHeight: "500px" }} />,
 });
-const BackToTop = dynamic(() => import("@/components/BackToTop"), {
-  ssr: true,
-  loading: () => null,
-});
+
 
 export default function Home() {
   return (
@@ -38,8 +35,5 @@ export default function Home() {
         <SkillsSection />
       </div>
     </>
-    // <SmoothScroll>
-    //   <BackToTop />
-    // </SmoothScroll>
   );
 }
