@@ -4,11 +4,12 @@ import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 // ─── Interfaces & Data ───────────────────────────────────────────────────────
 
 interface Project {
-  slug?: string
+  slug?: string;
   title: string;
   category: string;
   date: string;
@@ -133,76 +134,78 @@ function ProjectCard({ project, index, company }: { project: Project; index: num
   };
 
   return (
-    <motion.div
-      ref={cardRef}
-      custom={index}
-      variants={cardVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      whileHover={{ y: -4 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="relative overflow-hidden rounded-[20px] bg-[#1a1c18] border border-white/5 cursor-pointer flex flex-col p-6 md:p-8 min-h-85 group"
-    >
+    <Link href={`/projects/${project.slug}`} className="block h-full outline-none group">
       <motion.div
-        className="absolute w-80 h-80 bg-primary/25 blur-[90px] rounded-full pointer-events-none z-0"
-        style={{ x: glowX, y: glowY, translateX: "-50%", translateY: "-50%", opacity: isMounted ? 1 : 0 }}
-        transition={{ opacity: { duration: 0.5 } }}
-      />
-      <div
-        className="absolute inset-0 opacity-[0.25] pointer-events-none z-0"
-        style={{
-          backgroundImage: "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          maskImage: "radial-gradient(circle at 20% 65%, black 10%, transparent 40%)",
-          WebkitMaskImage: "radial-gradient(circle at 20% 65%, black 10%, transparent 40%)",
-        }}
-      />
-      <div className="absolute inset-0 opacity-40 mix-blend-overlay pointer-events-none z-0" style={{ backgroundImage: `url("/images/noice.svg")` }} />
+        ref={cardRef}
+        custom={index}
+        variants={cardVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        whileHover={{ y: -4 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="relative overflow-hidden rounded-[20px] bg-[#1a1c18] border border-white/5 cursor-pointer flex flex-col p-6 md:p-8 min-h-85 group"
+      >
+        <motion.div
+          className="absolute w-80 h-80 bg-primary/25 blur-[90px] rounded-full pointer-events-none z-0"
+          style={{ x: glowX, y: glowY, translateX: "-50%", translateY: "-50%", opacity: isMounted ? 1 : 0 }}
+          transition={{ opacity: { duration: 0.5 } }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.25] pointer-events-none z-0"
+          style={{
+            backgroundImage: "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+            maskImage: "radial-gradient(circle at 20% 65%, black 10%, transparent 40%)",
+            WebkitMaskImage: "radial-gradient(circle at 20% 65%, black 10%, transparent 40%)",
+          }}
+        />
+        <div className="absolute inset-0 opacity-40 mix-blend-overlay pointer-events-none z-0" style={{ backgroundImage: `url("/images/noice.svg")` }} />
 
-      <div className="relative z-10 flex flex-col h-full pointer-events-auto">
-        <div className="flex items-center gap-4 mb-10">
-          <motion.button
-            whileHover={{ y: -2 }}
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-            className="px-5 py-1.5 text-xs font-bold bg-primary text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
-          >
-            DONE
-          </motion.button>
-          <motion.button
-            whileHover={{ y: -2 }}
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-            className="px-5 py-1.5 text-xs font-bold bg-[#e8f3a3] text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
-          >
-            {project.category}
-          </motion.button>
-        </div>
-
-        <div className="mt-auto mb-10 pointer-events-none">
-          <p className="text-sm text-muted-foreground font-body mb-2">{company}</p>
-          <h3 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-1 tracking-tight">{project.title}</h3>
-          <p className="text-3xl md:text-4xl font-heading font-bold text-foreground tracking-tight">{project.date}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 pointer-events-none">
-          <div>
-            <p className="text-[10px] text-muted-foreground tracking-widest uppercase mb-1.5">Client</p>
-            <p className="text-sm font-semibold tracking-wide text-foreground/90">{project.client}</p>
+        <div className="relative z-10 flex flex-col h-full pointer-events-auto">
+          <div className="flex items-center gap-4 mb-10">
+            <motion.button
+              whileHover={{ y: -2 }}
+              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+              className="px-5 py-1.5 text-xs font-bold bg-primary text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
+            >
+              DONE
+            </motion.button>
+            <motion.button
+              whileHover={{ y: -2 }}
+              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+              className="px-5 py-1.5 text-xs font-bold bg-[#e8f3a3] text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide transition-shadow cursor-pointer"
+            >
+              {project.category}
+            </motion.button>
           </div>
-          <div>
-            <p className="text-[10px] text-muted-foreground tracking-widest uppercase mb-1.5">Creator</p>
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 relative rounded-full overflow-hidden bg-primary/20 shrink-0 border border-primary/30">
-                <Image src="/images/3d_avatar.svg" alt="Creator" fill className="object-cover" />
+
+          <div className="mt-auto mb-10 pointer-events-none">
+            <p className="text-sm text-muted-foreground font-body mb-2">{company}</p>
+            <h3 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-1 tracking-tight">{project.title}</h3>
+            <p className="text-3xl md:text-4xl font-heading font-bold text-foreground tracking-tight">{project.date}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pointer-events-none">
+            <div>
+              <p className="text-[10px] text-muted-foreground tracking-widest uppercase mb-1.5">Client</p>
+              <p className="text-sm font-semibold tracking-wide text-foreground/90">{project.client}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground tracking-widest uppercase mb-1.5">Creator</p>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 relative rounded-full overflow-hidden bg-primary/20 shrink-0 border border-primary/30">
+                  <Image src="/images/3d_avatar.svg" alt="Creator" fill className="object-cover" />
+                </div>
+                <p className="text-sm font-semibold tracking-wide text-foreground/90">{project.creator}</p>
               </div>
-              <p className="text-sm font-semibold tracking-wide text-foreground/90">{project.creator}</p>
             </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 }
 

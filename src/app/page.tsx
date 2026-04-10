@@ -28,7 +28,7 @@ const BackToTop = dynamic(() => import("@/components/BackToTop"), {
 
 export default function Home() {
   return (
-    <SmoothScroll>
+    <>
       <HeroSection />
       <div className="relative z-10">
         <MarqueeBanner />
@@ -37,7 +37,9 @@ export default function Home() {
         <MarqueeBannerDynamic />
         <SkillsSection />
       </div>
-      <BackToTop />
-    </SmoothScroll>
+    </>
+    // <SmoothScroll>
+    //   <BackToTop />
+    // </SmoothScroll>
   );
 }
