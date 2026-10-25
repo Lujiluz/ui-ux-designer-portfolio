@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { Mail, Whatsapp } from "./ui/icons";
 
 // ─── Interfaces & Data ───────────────────────────────────────────────────────
 
@@ -104,7 +104,7 @@ const logoItemVariants = {
 
 // ─── ProjectCard & CTACard ─────────────────────────
 
-function ProjectCard({ project, index, company }: { project: Project; index: number; company: string }) {
+function ProjectCard({ project, index, company, onOpen }: { project: Project; index: number; company: string; onOpen: () => void }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
   const mouseX = useMotionValue(0);
@@ -134,7 +134,18 @@ function ProjectCard({ project, index, company }: { project: Project; index: num
   };
 
   return (
-    <Link href={`/projects/${project.slug}`} className="block h-full outline-none group">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className="block h-full outline-none group"
+    >
       <motion.div
         ref={cardRef}
         custom={index}
@@ -205,7 +216,7 @@ function ProjectCard({ project, index, company }: { project: Project; index: num
           </div>
         </div>
       </motion.div>
-    </Link>
+    </div>
   );
 }
 
@@ -282,11 +293,97 @@ function LogoBar({ logos }: { logos: { src: string; alt: string; year: string }[
   );
 }
 
+// ─── Private Works Modal ─────────────────────────────────────────────────────
+
+const EMAIL_HREF = "mailto:rimazakiyatin@gmail.com";
+const WHATSAPP_HREF = "https://wa.me/6281234567890?text=Halo%2C%20saya%20ingin%20lihat%20semua%20portfolio";
+
+function PrivateWorksModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open, onClose]);
+
+  const buttonBase =
+    "inline-flex items-center gap-2 px-6 py-2 text-xs font-bold text-black rounded-lg border border-black shadow-[3px_3px_0px_rgba(85,85,85,1)] tracking-wide cursor-pointer";
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-100 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+        >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="private-works-title"
+            className="w-full max-w-2xl rounded-2xl bg-[#262626] border border-white/5 px-6 py-10 md:px-12 md:py-12 text-center shadow-2xl"
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.96 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="private-works-title" className="text-xl md:text-2xl font-heading font-bold text-primary mb-6">
+              Private Works &amp; Case Studies
+            </h3>
+            <p className="text-sm md:text-base text-foreground/80 font-body leading-relaxed mb-8">
+              Several projects are private and cannot be shared publicly.
+              <br className="hidden md:block" /> If you&apos;d like to see the full case study or project details, feel free to contact me via email or WhatsApp.
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              <motion.a
+                href={EMAIL_HREF}
+                whileHover={{ y: -2 }}
+                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                className={`${buttonBase} bg-[#e8f3a3] font-space-mono`}
+              >
+                <Mail className="w-4 h-4 [&_path]:stroke-black" />
+                EMAIL
+              </motion.a>
+              <motion.a
+                href={WHATSAPP_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ y: -2 }}
+                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                className={`${buttonBase} bg-primary font-space-mono`}
+              >
+                <Whatsapp className="w-4 h-4 [&_path]:stroke-black" />
+                WHATSAPP
+              </motion.a>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // ─── DI-UPDATE: ProjectsGrid Header ──────────────────────────────────────────
 
 const ProjectsGrid = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+
   return (
     <section className="py-16 md:py-24 px-6 md:px-12 bg-[#121212]">
+      <PrivateWorksModal open={modalOpen} onClose={closeModal} />
       <div className="container mx-auto space-y-32">
         {projectSets.map((set, si) => (
           <div key={si}>
@@ -300,9 +397,9 @@ const ProjectsGrid = () => {
 
             {/* Bento grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ProjectCard project={set.projects[0]} index={0} company={set.company.replace("'s Project", "")} />
-              <ProjectCard project={set.projects[1]} index={1} company={set.company.replace("'s Project", "")} />
-              <ProjectCard project={set.projects[2]} index={2} company={set.company.replace("'s Project", "")} />
+              <ProjectCard project={set.projects[0]} index={0} company={set.company.replace("'s Project", "")} onOpen={openModal} />
+              <ProjectCard project={set.projects[1]} index={1} company={set.company.replace("'s Project", "")} onOpen={openModal} />
+              <ProjectCard project={set.projects[2]} index={2} company={set.company.replace("'s Project", "")} onOpen={openModal} />
               <CTACard index={3} />
             </div>
           </div>
